@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kết quả đăng ký định kỳ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/vnpay-demo.css}">
+    <style>
+        .page-shell { max-width: 720px; margin: 0 auto; }
+        .card-elevated { border-radius: 14px; }
+        .section-title { font-weight: 600; }
+        .status-success { color: #0f9d58; font-weight: 600; }
+        .status-fail { color: #d93025; font-weight: 600; }
+    </style>
+</head>
+<body class="vnpay-demo py-5">
+
+<div class="page-shell container">
+    <div class="text-center mb-4">
+        <h1 class="section-title mb-1">Kết quả đăng ký định kỳ</h1>
+        <p class="text-muted mb-0">Kết quả trả về từ VNPay.</p>
+    </div>
+
+    <div class="card-elevated p-4">
+        <div class="text-center mb-3">
+            <img th:src="@{/vnpay-logo.png}" alt="VNPAY" style="width: 90px;">
+        </div>
+
+        <div class="alert" th:classappend="${status == 'success'} ? 'alert-success' : 'alert-danger'">
+            <span th:text="${message}"></span>
+        </div>
+
+        <div class="mb-3">
+            <span th:class="${signatureValid} ? 'status-success' : 'status-fail'">
+                <span th:text="${signatureValid} ? 'Signature hợp lệ' : 'Signature không hợp lệ'"></span>
+            </span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <tbody>
+                <tr>
+                    <th>Mã tham chiếu</th>
+                    <td th:text="${orderRef}"></td>
+                </tr>
+                <tr>
+                    <th>Số tiền (x100)</th>
+                    <td th:text="${amount}"></td>
+                </tr>
+                <tr>
+                    <th>Mã phản hồi</th>
+                    <td th:text="${responseCode}"></td>
+                </tr>
+                <tr>
+                    <th>Trạng thái GD</th>
+                    <td th:text="${transactionStatus}"></td>
+                </tr>
+                <tr>
+                    <th>Mã recurringId</th>
+                    <td>
+                        <span th:if="${recurringId != null and !#strings.isEmpty(recurringId)}" th:text="${recurringId}"></span>
+                        <span th:if="${recurringId == null or #strings.isEmpty(recurringId)}" class="text-muted">(trống – xem Raw params để kiểm tra)</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:if="${status == 'success' and (recurringId == null or #strings.isEmpty(recurringId))}" class="alert alert-info small">
+            Nếu recurringId trống, mở phần <strong>Raw params</strong> bên dưới để xem tham số VNPAY trả về. Có thể VNPAY dùng tên khác (ví dụ: vnp_recurring_id).
+        </div>
+
+        <details class="mt-3">
+            <summary>Raw params</summary>
+            <pre class="mt-2 mb-0" th:text="${rawParams}" style="white-space: pre-wrap; font-size: 0.85rem;"></pre>
+        </details>
+
+        <div class="mt-4 d-grid gap-2">
+            <a th:if="${status == 'success' and recurringId != null and !#strings.isEmpty(recurringId)}"
+               th:href="@{/vnpay/recurring/pay(recurringId=${recurringId}, orderReference=${orderRef})}" class="btn btn-primary">Thanh toán định kỳ (dùng recurringId)</a>
+            <a th:href="@{/}" class="btn btn-outline-secondary">Về menu chính</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: vnpay_demo_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vnpay_pg_db
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-123456}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - vnpay_demo_pgdata:/var/lib/postgresql/data
+
+volumes:
+  vnpay_demo_pgdata:

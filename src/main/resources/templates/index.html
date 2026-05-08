@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VNPAY Recurring Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/vnpay-demo.css}">
+    <style>
+        .page-shell { max-width: 720px; margin: 0 auto; }
+        .card-elevated { border-radius: 14px; }
+        .section-title { font-weight: 600; }
+        .vnpay-logo { width: 90px; }
+        .logo-fallback {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            min-width: 90px;
+            height: 42px;
+            padding: 0 14px;
+            border-radius: 10px;
+            background: var(--brand);
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .demo-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: #212529;
+            text-decoration: none;
+            background: #fff;
+        }
+        .demo-link:hover {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 0.2rem rgba(0, 82, 204, 0.08);
+        }
+        .demo-link small {
+            display: block;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+        .demo-arrow {
+            color: var(--muted);
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="vnpay-demo py-5">
+
+<div class="page-shell container">
+    <div class="text-center mb-4">
+        <h1 class="section-title mb-1">VNPAY Recurring Demo</h1>
+        <p class="text-muted mb-0">Dang ky, thanh toan ky, cap nhat va huy recurring.</p>
+    </div>
+
+    <div class="card-elevated p-4">
+        <div class="text-center mb-3">
+            <span class="logo-fallback">VNPAY</span>
+            <img th:src="@{/vnpay-logo.png}" alt="VNPAY" class="vnpay-logo"
+                 onerror="this.style.display='none'; this.previousElementSibling.style.display='inline-flex';">
+        </div>
+        <div class="d-grid gap-3">
+            <a class="demo-link" href="/vnpay/recurring/init">
+                <span>
+                    <strong>Dang ky thanh toan dinh ky</strong>
+                    <small>Khoi tao recurring.</small>
+                </span>
+                <span class="demo-arrow">&gt;</span>
+            </a>
+            <a class="demo-link" href="/vnpay/recurring/pay">
+                <span>
+                    <strong>Thanh toan ky</strong>
+                    <small>Thu tien dinh ky theo recurringId.</small>
+                </span>
+                <span class="demo-arrow">&gt;</span>
+            </a>
+            <a class="demo-link" href="/vnpay/recurring/update-token">
+                <span>
+                    <strong>Cap nhat the</strong>
+                    <small>Update token.</small>
+                </span>
+                <span class="demo-arrow">&gt;</span>
+            </a>
+            <a class="demo-link" href="/vnpay/recurring/update-recurring">
+                <span>
+                    <strong>Cap nhat so ky</strong>
+                    <small>Update recurring.</small>
+                </span>
+                <span class="demo-arrow">&gt;</span>
+            </a>
+            <a class="demo-link" href="/vnpay/recurring/cancel">
+                <span>
+                    <strong>Huy dang ky</strong>
+                    <small>Cancel recurring.</small>
+                </span>
+                <span class="demo-arrow">&gt;</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <div class="footer-note">&copy; VNPAY 2026</div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

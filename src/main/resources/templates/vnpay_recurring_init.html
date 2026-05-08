@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng ký Thanh toán Định kỳ - VNPAY</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/vnpay-demo.css}">
+    <style>
+        .page-shell { max-width: 860px; margin: 0 auto; }
+        .card-elevated { border-radius: 14px; }
+        .section-title { font-weight: 600; }
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 0.65rem 0.9rem;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 0.2rem rgba(0, 82, 204, 0.15);
+        }
+        .form-text { font-size: 0.85rem; color: #6c757d; }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="vnpay-demo py-5">
+
+<div class="page-shell container">
+    <div class="text-center mb-4">
+        <h1 class="section-title mb-1">Đăng ký thanh toán định kỳ</h1>
+        <p class="text-muted mb-0">Tạo hợp đồng thanh toán định kỳ với VNPay.</p>
+    </div>
+
+    <div class="card-elevated p-4">
+        <div class="text-center mb-3">
+            <img th:src="@{/vnpay-logo.png}" alt="VNPAY" style="width: 90px;">
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <form th:action="@{/vnpay/recurring/init}" method="post">
+            <div class="mb-3">
+                <label for="command" class="form-label">command</label>
+                <select class="form-select" id="command" name="command" required>
+                    <option value="recurring">Đăng ký thanh toán định kỳ</option>
+                    <option value="pay_n_recurring" selected>Thanh toán và đăng ký định kỳ</option>
+                </select>
+                <div class="form-text">recurring: chỉ đăng ký. pay_n_recurring: thanh toán ngay và đăng ký.</div>
+            </div>
+            <div class="mb-3">
+                <label for="orderReference" class="form-label">Mã tham chiếu (orderReference)</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="orderReference" name="orderReference" required
+                           placeholder="Tự động tạo" pattern="[A-Za-z0-9_-]+" maxlength="12"/>
+                    <button type="button" class="btn btn-outline-secondary" id="btnGenOrderRef" title="Tạo mã mới">
+                        Tạo mới
+                    </button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="orderInfo" class="form-label">Nội dung đơn hàng</label>
+                <input type="text" class="form-control" id="orderInfo" name="orderInfo" required
+                       value="Dang ky thanh toan dinh ky"/>
+            </div>
+            <div class="mb-3">
+                <label for="orderType" class="form-label">Loại hàng hóa</label>
+                <input type="text" class="form-control" id="orderType" name="orderType" required value="baohiem"/>
+            </div>
+            <div class="mb-3">
+                <label for="appUserId" class="form-label">Mã người dùng (app.userId)</label>
+                <input type="text" class="form-control" id="appUserId" name="appUserId" required value="userid_0"/>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="recurringFrequencyNumber" class="form-label">Số chu kỳ</label>
+                    <input type="number" class="form-control" id="recurringFrequencyNumber" name="recurringFrequencyNumber" required value="1" min="1"/>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="recurringFrequency" class="form-label">Chu kỳ</label>
+                    <select class="form-select" id="recurringFrequency" name="recurringFrequency" required>
+                        <option value="day">day</option>
+                        <option value="week">week</option>
+                        <option value="month" selected>month</option>
+                        <option value="quarter">quarter</option>
+                        <option value="year">year</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="recurringNumber" class="form-label">Số kỳ đăng ký</label>
+                    <input type="number" class="form-control" id="recurringNumber" name="recurringNumber" required value="3" min="0"/>
+                    <div class="form-text">0 = hợp đồng không kỳ hạn.</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="recurringAmount" class="form-label">Số tiền mỗi kỳ (x100)</label>
+                    <input type="number" class="form-control" id="recurringAmount" name="recurringAmount" required value="200000000" min="1"/>
+                    <div class="form-text">Ví dụ 2,000,000 VND => 200000000.</div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="amount" class="form-label">Tổng tiền (x100)</label>
+                <input type="number" class="form-control" id="amount" name="amount" required value="600000000" min="0"/>
+                <div class="form-text">Nếu để 0, hệ thống sẽ tự tính = recurringAmount * recurringNumber.</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="recurringDate" class="form-label">Ngày thanh toán (yyyyMMdd)</label>
+                    <input type="text" class="form-control" id="recurringDate" name="recurringDate" required value="20261215"/>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="recurringStartDate" class="form-label">Ngày bắt đầu</label>
+                    <input type="text" class="form-control" id="recurringStartDate" name="recurringStartDate" required value="20261215"/>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="recurringEndDate" class="form-label">Ngày kết thúc</label>
+                    <input type="text" class="form-control" id="recurringEndDate" name="recurringEndDate" required value="20271215"/>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="locale" class="form-label">Ngôn ngữ</label>
+                <select class="form-select" id="locale" name="locale" required>
+                    <option value="vn" selected>vn</option>
+                    <option value="en">en</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="addData" class="form-label">Thông tin bổ sung (addData)</label>
+                <input type="text" class="form-control" id="addData" name="addData" value=""/>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Tạo đăng ký</button>
+        </form>
+        <div class="mt-3">
+            <a th:href="@{/}" class="btn btn-outline-secondary w-100">Về menu chính</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function generateOrderRef() {
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let suffix = "";
+        for (let i = 0; i < 9; i++) {
+            suffix += alphabet[Math.floor(Math.random() * alphabet.length)];
+        }
+        return "REC" + suffix;
+    }
+    function applyOrderRef() {
+        document.getElementById("orderReference").value = generateOrderRef();
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+        applyOrderRef();
+        document.getElementById("btnGenOrderRef").addEventListener("click", applyOrderRef);
+    });
+</script>
+</body>
+</html>

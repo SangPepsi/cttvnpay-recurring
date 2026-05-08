@@ -1,0 +1,67 @@
+/* Shared VNPAY demo UI styles */
+:root {
+  --brand: #0052cc;
+  --brand-dark: #003d99;
+  --surface: #ffffff;
+  --border: #e9ecef;
+  --muted: #6c757d;
+  --bg: #f6f8fb;
+}
+
+body.vnpay-demo {
+  background: linear-gradient(180deg, #f2f6ff 0%, var(--bg) 100%);
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: #212529;
+}
+
+.vnpay-demo .card,
+.vnpay-demo .card-elevated {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
+}
+
+.vnpay-demo .card-header {
+  background-color: transparent;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  color: #111827;
+}
+
+.vnpay-demo .btn-primary {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.vnpay-demo .btn-primary:hover {
+  background: var(--brand-dark);
+  border-color: var(--brand-dark);
+}
+
+.vnpay-demo input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.vnpay-demo input[type="number"]::-webkit-inner-spin-button,
+.vnpay-demo input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.vnpay-demo .badge-soft {
+  background: #e8f0ff;
+  color: var(--brand);
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.vnpay-demo .section-divider {
+  border-top: 1px dashed #dbe4f3;
+}
+
+.vnpay-demo .footer-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+}

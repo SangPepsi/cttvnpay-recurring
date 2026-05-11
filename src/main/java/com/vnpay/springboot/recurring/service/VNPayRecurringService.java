@@ -261,7 +261,19 @@ public class VNPayRecurringService {
         return result;
     }
 
-    public RecurringActionResult recurringPay(RecurringPayRequest request) {
+    public RecurringActionResult recurringPay(RecurringPayRequest request, String clientIp, String userAgent) {
+        RecurringRegistration reg = recurringRepository.findByOrderReference(request.getOrderReference())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Không tìm thấy đăng ký định kỳ với mã tham chiếu này trong CSDL demo. "
+                                + "Hãy thực hiện đăng ký (Init) trên cùng ứng dụng trước khi thanh toán kỳ."));
+
+        String ip = (clientIp == null || clientIp.isBlank()) ? "127.0.0.1" : clientIp;
+        String ua = (userAgent == null || userAgent.isBlank()) ? "Unknown" : userAgent;
+
+        String orderInfo = reg.getOrderInfo();
+        String orderType = reg.getOrderType();
+        String appUserId = reg.getAppUserId();
+
         String reqId = String.valueOf(System.currentTimeMillis());
         String mcDate = getNowGmt7("yyyyMMddHHmmss");
         String addData = defaultString(request.getAddData());
@@ -272,11 +284,18 @@ public class VNPayRecurringService {
         payload.addProperty("tmnCode", recurringConfig.getTmnCode());
         payload.addProperty("version", RECURRING_VERSION);
         payload.addProperty("addData", addData);
+        payload.addProperty("ipAddr", ip);
+        payload.addProperty("userAgent", ua);
 
         JsonObject order = new JsonObject();
         order.addProperty("orderReference", request.getOrderReference());
-        order.addProperty("orderInfo", request.getOrderInfo());
+        order.addProperty("orderInfo", orderInfo);
+        order.addProperty("orderType", orderType);
         payload.add("order", order);
+
+        JsonObject app = new JsonObject();
+        app.addProperty("userId", appUserId);
+        payload.add("app", app);
 
         JsonObject transaction = new JsonObject();
         transaction.addProperty("recurringId", request.getRecurringId());
@@ -290,11 +309,13 @@ public class VNPayRecurringService {
         token.addProperty("tokenId", request.getTokenId());
         payload.add("token", token);
 
+        // Chuỗi hash theo đặc tả RecurringTxnRequest (đồng bộ với các field ký — tham chiếu OpenAPI isp-svc).
         String hashData = String.join("|",
                 reqId,
                 RECURRING_PAY_COMMAND,
                 request.getOrderReference(),
-                request.getOrderInfo(),
+                orderInfo,
+                orderType,
                 recurringConfig.getTmnCode(),
                 request.getTokenId(),
                 request.getRecurringId(),
@@ -302,6 +323,9 @@ public class VNPayRecurringService {
                 request.getRecurringDate(),
                 "VND",
                 addData,
+                appUserId,
+                ip,
+                ua,
                 RECURRING_VERSION,
                 mcDate
         );
@@ -654,6 +678,9 @@ public class VNPayRecurringService {
         result.setRspCode(rspCode);
         result.setRspMsg(rspMsg);
         result.setSuccess("00".equals(rspCode));
+        if (!"00".equals(rspCode) && resp.has("errorDetails") && resp.get("errorDetails").isJsonArray()) {
+            log.warn("VNPAY recurring execute errorDetails: {}", resp.get("errorDetails"));
+        }
         return result;
     }
 

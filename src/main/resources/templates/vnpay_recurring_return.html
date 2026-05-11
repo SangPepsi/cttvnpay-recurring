@@ -63,6 +63,10 @@
                         <span th:if="${recurringId == null or #strings.isEmpty(recurringId)}" class="text-muted">(trống – xem Raw params để kiểm tra)</span>
                     </td>
                 </tr>
+                <tr>
+                    <th>Token</th>
+                    <td th:text="${tokenID}"></td>
+                </tr>
                 </tbody>
             </table>
         </div>
@@ -78,7 +82,7 @@
 
         <div class="mt-4 d-grid gap-2">
             <a th:if="${status == 'success' and recurringId != null and !#strings.isEmpty(recurringId)}"
-               th:href="@{/vnpay/recurring/pay(recurringId=${recurringId}, orderReference=${orderRef})}" class="btn btn-primary">Thanh toán định kỳ (dùng recurringId)</a>
+               th:href="@{/vnpay/recurring/pay(recurringId=${recurringId}, orderReference=${orderRef}, tokenID=${tokenID})}" class="btn btn-primary">Thanh toán định kỳ (dùng recurringId)</a>
             <a th:href="@{/}" class="btn btn-outline-secondary">Về menu chính</a>
         </div>
     </div>

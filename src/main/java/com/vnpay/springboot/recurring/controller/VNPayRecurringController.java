@@ -98,6 +98,7 @@ public class VNPayRecurringController {
         model.addAttribute("recurringId", returnResult.recurringId());
         model.addAttribute("rawParams", params);
         model.addAttribute("signatureValid", returnResult.status() != -1);
+        model.addAttribute("tokenID", getParam(params, "vnp_token", "vnp_Token"));
 
         if (returnResult.status() == -1) {
             model.addAttribute("status", "fail");
@@ -132,10 +133,14 @@ public class VNPayRecurringController {
 
     @GetMapping("/pay")
     public String showPayForm(
-            @RequestParam(required = false) String recurringId,
-            @RequestParam(required = false) String orderReference,
+            @RequestParam(name = "recurringId", required = false) String recurringId,
+            @RequestParam(name = "orderReference", required = false) String orderReference,
+            @RequestParam(name = "tokenID", required = false) String tokenID,
+            @RequestParam(name = "tokenId", required = false) String tokenId,
             Model model) {
         if (recurringId != null) model.addAttribute("prefillRecurringId", recurringId);
+        String token = (tokenID != null && !tokenID.isBlank()) ? tokenID : tokenId;
+        if (token != null && !token.isBlank()) model.addAttribute("prefilltokenID", token);
         if (orderReference != null) model.addAttribute("prefillOrderReference", orderReference);
         return "vnpay_recurring_pay";
     }
@@ -144,13 +149,21 @@ public class VNPayRecurringController {
     public String recurringPay(
             @Valid RecurringPayRequest request,
             BindingResult bindingResult,
+            HttpServletRequest httpRequest,
             Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("error", "Vui lòng kiểm tra lại thông tin thanh toán định kỳ.");
             return "vnpay_recurring_pay";
         }
-        RecurringActionResult result = recurringService.recurringPay(request);
-        return renderActionResult(model, "Thanh toán định kỳ", result, "/vnpay/recurring/pay");
+        try {
+            String clientIp = VNPayUtils.getIpAddress(httpRequest);
+            String userAgent = getUserAgent(httpRequest);
+            RecurringActionResult result = recurringService.recurringPay(request, clientIp, userAgent);
+            return renderActionResult(model, "Thanh toán định kỳ", result, "/vnpay/recurring/pay");
+        } catch (IllegalArgumentException ex) {
+            model.addAttribute("error", ex.getMessage());
+            return "vnpay_recurring_pay";
+        }
     }
 
     @GetMapping("/update-token")

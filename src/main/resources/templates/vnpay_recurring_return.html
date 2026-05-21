@@ -7,11 +7,40 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/vnpay-demo.css}">
     <style>
-        .page-shell { max-width: 720px; margin: 0 auto; }
+        .page-shell { max-width: 820px; margin: 0 auto; }
         .card-elevated { border-radius: 14px; }
         .section-title { font-weight: 600; }
-        .status-success { color: #0f9d58; font-weight: 600; }
-        .status-fail { color: #d93025; font-weight: 600; }
+        .result-table th {
+            width: 38%;
+            background: #f7f9fc;
+            font-weight: 600;
+            color: #495057;
+        }
+        .result-table td {
+            word-break: break-all;
+        }
+        .badge-status {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+        .badge-success { background: #e6f4ea; color: #0f9d58; }
+        .badge-fail { background: #fde7e9; color: #d93025; }
+        details summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--brand, #0052cc);
+        }
+        pre.raw-params {
+            background: #f4f6f9;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin: 0.75rem 0 0;
+        }
     </style>
 </head>
 <body class="vnpay-demo py-5">
@@ -22,23 +51,27 @@
         <p class="text-muted mb-0">Kết quả trả về từ VNPay.</p>
     </div>
 
-    <div class="card-elevated p-4">
+    <div class="card-elevated card p-4">
         <div class="text-center mb-3">
             <img th:src="@{/vnpay-logo.png}" alt="VNPAY" style="width: 90px;">
         </div>
 
-        <div class="alert" th:classappend="${status == 'success'} ? 'alert-success' : 'alert-danger'">
+        <div class="alert d-flex align-items-center gap-2"
+             th:classappend="${status == 'success'} ? 'alert-success' : 'alert-danger'">
+            <span class="badge-status"
+                  th:classappend="${status == 'success'} ? 'badge-success' : 'badge-fail'"
+                  th:text="${status == 'success'} ? 'Thành công' : 'Thất bại'"></span>
             <span th:text="${message}"></span>
         </div>
 
         <div class="mb-3">
-            <span th:class="${signatureValid} ? 'status-success' : 'status-fail'">
-                <span th:text="${signatureValid} ? 'Signature hợp lệ' : 'Signature không hợp lệ'"></span>
-            </span>
+            <span class="badge-status"
+                  th:classappend="${signatureValid} ? 'badge-success' : 'badge-fail'"
+                  th:text="${signatureValid} ? 'Signature hợp lệ' : 'Signature không hợp lệ'"></span>
         </div>
 
         <div class="table-responsive">
-            <table class="table table-bordered align-middle">
+            <table class="table table-bordered align-middle result-table mb-0">
                 <tbody>
                 <tr>
                     <th>Mã tham chiếu</th>
@@ -53,40 +86,43 @@
                     <td th:text="${responseCode}"></td>
                 </tr>
                 <tr>
-                    <th>Trạng thái GD</th>
+                    <th>Trạng thái giao dịch</th>
                     <td th:text="${transactionStatus}"></td>
                 </tr>
                 <tr>
                     <th>Mã recurringId</th>
                     <td>
-                        <span th:if="${recurringId != null and !#strings.isEmpty(recurringId)}" th:text="${recurringId}"></span>
-                        <span th:if="${recurringId == null or #strings.isEmpty(recurringId)}" class="text-muted">(trống – xem Raw params để kiểm tra)</span>
+                        <code th:if="${recurringId != null and !#strings.isEmpty(recurringId)}"
+                              th:text="${recurringId}"></code>
+                        <span th:if="${recurringId == null or #strings.isEmpty(recurringId)}"
+                              class="text-muted">(trống – xem Raw params bên dưới để kiểm tra)</span>
                     </td>
-                </tr>
-                <tr>
-                    <th>Token</th>
-                    <td th:text="${tokenID}"></td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
-        <div th:if="${status == 'success' and (recurringId == null or #strings.isEmpty(recurringId))}" class="alert alert-info small">
-            Nếu recurringId trống, mở phần <strong>Raw params</strong> bên dưới để xem tham số VNPAY trả về. Có thể VNPAY dùng tên khác (ví dụ: vnp_recurring_id).
+        <div th:if="${status == 'success' and (recurringId == null or #strings.isEmpty(recurringId))}"
+             class="alert alert-info small mt-3 mb-0">
+            Nếu <code>recurringId</code> trống, mở phần <strong>Raw params</strong> bên dưới để xem tham số VNPAY trả về.
+            Có thể VNPAY dùng tên khác (ví dụ: <code>vnp_recurring_id</code>).
         </div>
 
         <details class="mt-3">
             <summary>Raw params</summary>
-            <pre class="mt-2 mb-0" th:text="${rawParams}" style="white-space: pre-wrap; font-size: 0.85rem;"></pre>
+            <pre class="raw-params" th:text="${rawParams}"></pre>
         </details>
 
         <div class="mt-4 d-grid gap-2">
             <a th:if="${status == 'success' and recurringId != null and !#strings.isEmpty(recurringId)}"
-               th:href="@{/vnpay/recurring/pay(recurringId=${recurringId}, orderReference=${orderRef}, tokenID=${tokenID})}" class="btn btn-primary">Thanh toán định kỳ (dùng recurringId)</a>
+               th:href="@{/vnpay/recurring/pay(recurringId=${recurringId}, orderReference=${orderRef})}"
+               class="btn btn-primary">Thanh toán định kỳ (dùng recurringId)</a>
+            <a th:href="@{/vnpay/recurring/init}" class="btn btn-outline-primary">Tạo đăng ký khác</a>
             <a th:href="@{/}" class="btn btn-outline-secondary">Về menu chính</a>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
